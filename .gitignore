@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+my_env/
+
+# Secrets
+.env
+
+# Mac
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OCR / generated outputs / local data
+data/extracted_text/
+data/cleaned_text/
+data/merged_bios/
+data/decoded_bios/
+
+# private
+data/raw_images/
+data/user_bio
