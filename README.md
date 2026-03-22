@@ -94,18 +94,14 @@ This mode is designed as a lightweight decision-support layer rather than a reco
 │   └── user_bio
 │
 ├── notebooks
-│   └── phase1_test.ipynb
 │
 ├── src
 │   ├── decoding
-│   ├── OCR
+|       ├── prompts
+│   ├── ocr
 │   └── pipeline
 │
 ├── test
-│   ├── test_agent.py
-│   ├── test_decoder.py
-│   ├── test_full_in_memory.py
-│   └── test_ocr.py
 │
 ├── venv
 ├── .gitignore
