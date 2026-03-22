@@ -13,8 +13,13 @@ The goal is not to automate dating decisions, but to explore:
 - How agent-style control flows can improve reliability and cost efficiency
 
 ## Architecture
-
-Screenshot → OCR → Text Cleaning → Deduplication → Early Filter → LLM Decoder → Structured Output → (Optional Co-pilot Mode)
+Pipeline:
+1. Read screenshots of dating profiles
+2. Extract text via OCR
+3. Clean, merge and format extracted bio text
+4. Send formatted bio text to an LLM for structured decoding
+5. Save decoded output as JSON
+6. (Optional Co-pilot Mode that gives user the honest opinion on the potential match)
 
 ## Key Features
 
