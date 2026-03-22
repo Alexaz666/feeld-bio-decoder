@@ -76,26 +76,37 @@ Additional outputs include:
 This mode is designed as a lightweight decision-support layer rather than a recommendation engine.
 
 ## Project Structure
+
+```
+│
 ├── data
-│ ├── cleaned_text
-│ ├── decoded_bios
-│ ├── extracted_text
-│ ├── merged_bios
-│ ├── model_outputs
-│ ├── raw_images
-│ └── user_bio
+│   ├── cleaned_text
+│   ├── decoded_bios
+│   ├── extracted_text
+│   ├── merged_bios
+│   ├── model_outputs
+│   ├── raw_images
+│   └── user_bio
 │
 ├── notebooks
-│ └── phase1_test.ipynb
+│   └── phase1_test.ipynb
 │
 ├── src
-│ ├── decoding
-│ ├── ocr
-│ └── pipeline
+│   ├── decoding
+│   ├── OCR
+│   └── pipeline
 │
-├── tests
+├── test
+│   ├── test_agent.py
+│   ├── test_decoder.py
+│   ├── test_full_in_memory.py
+│   └── test_ocr.py
+│
 ├── venv
+├── .gitignore
+├── README.md
 └── requirements.txt
+```
 
 
 ## Example Output
