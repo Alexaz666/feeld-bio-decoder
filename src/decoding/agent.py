@@ -50,7 +50,12 @@ class DecodingAgent:
         if isinstance(saved_output, str):
             decoded["saved_to"] = saved_output
 
-        if not self.web_mode:
+        if self.web_mode:
+            decoded["commentary"] = generate_copilot_comment_llm(
+                decoded_bio=decoded,
+                user_bio=self.user_bio
+            )
+        else:
             wants_input = input("\n🧠 Want my honest take before you act? (y/n): ").strip().lower()
             if wants_input == "y":
                 reflection = input("What are you feeling about this match? (optional): ").strip()
