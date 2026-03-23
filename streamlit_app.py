@@ -8,17 +8,6 @@ from src.decoding.red_flags import flag_red_phrases
 st.title("📖 Dating App Bio Decoder")
 st.markdown("Upload a screenshot of a dating profile to decode it.")
 
-# === Upload screenshots ===
-uploaded_images = st.file_uploader(
-    "Upload profile screenshot(s)",
-    type=["jpg", "jpeg", "png"],
-    accept_multiple_files=True
-)
-
-# === Optional: user bio input ===
-st.markdown("Optional: Paste your own bio (used to assess compatibility).")
-user_bio_text = st.text_area("Your bio", placeholder="I'm an emotionally available spreadsheet nerd...")
-
 # === Choose mode ===
 mode = st.radio(
     "Choose decoding mode:",
@@ -28,6 +17,8 @@ mode = st.radio(
 copilot_mode = (mode == "Bestie")
 
 # === State containers ===
+if "selected_mode" not in st.session_state:
+    st.session_state.selected_mode = mode
 if "ocr_done" not in st.session_state:
     st.session_state.ocr_done = False
 if "merged_bio" not in st.session_state:
@@ -36,6 +27,25 @@ if "flagged_reason" not in st.session_state:
     st.session_state.flagged_reason = None
 if "allow_decode" not in st.session_state:
     st.session_state.allow_decode = True
+
+if st.session_state.selected_mode != mode:
+    st.session_state.selected_mode = mode
+    st.session_state.flagged_reason = None
+    st.session_state.allow_decode = True
+    st.session_state.pop("override_choice", None)
+
+# === Upload screenshots ===
+uploaded_images = st.file_uploader(
+    "Upload profile screenshot(s)",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True
+)
+
+# === Bestie-only user bio input ===
+user_bio_text = ""
+if copilot_mode:
+    st.markdown("Optional: Paste your own bio (used to assess compatibility).")
+    user_bio_text = st.text_area("Your bio", placeholder="I'm an emotionally available spreadsheet nerd...")
 
 # === Step 1: Run OCR when user uploads ===
 if uploaded_images and st.button("Run OCR"):
