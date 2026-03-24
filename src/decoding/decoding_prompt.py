@@ -4,29 +4,10 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from jinja2 import Template
 from collections import OrderedDict
-from src.decoding.llm_config import MODEL_NAME, TEMPERATURE_DECODE, USER_BIO_PATH, DECODING_PROMPT_TEMPLATE
+from src.decoding.llm_config import MODEL_NAME, TEMPERATURE_DECODE, DECODING_PROMPT_TEMPLATE
 
 load_dotenv()
 client = OpenAI()
-
-
-def load_user_bio(custom_bio: str = None) -> str:
-    """
-    Loads the user's own bio for compatibility scoring.
-    - If `custom_bio` is provided (from web upload or text input), use that.
-    - Otherwise, fall back to loading from USER_BIO_PATH.
-    """
-    if custom_bio and custom_bio.strip():
-        return custom_bio.strip()
-
-    try:
-        with open(USER_BIO_PATH, "r", encoding="utf-8") as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        print(f"[!] User bio file not found at {USER_BIO_PATH}. Returning empty string.")
-        return ""
-
-
 
 def extract_bio_fields(bio_dict: dict) -> dict:
     """
@@ -41,21 +22,17 @@ def extract_bio_fields(bio_dict: dict) -> dict:
     }
 
 
-def call_full_prompt(bio_dict, user_bio=None):
+def call_full_prompt(bio_dict):
     """
     Renders the decoding prompt and sends it to the LLM.
     bio_dict: single bio entry (dict)
-    user_bio: optional string
     """
     fields = extract_bio_fields(bio_dict)
 
     with open(DECODING_PROMPT_TEMPLATE, "r") as f:
         template = Template(f.read())
 
-    prompt = template.render(
-        **fields,
-        user_bio=user_bio
-    )
+    prompt = template.render(**fields)
 
     response = client.chat.completions.create(
         model=MODEL_NAME,

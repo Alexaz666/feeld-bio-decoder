@@ -1,5 +1,5 @@
 from src.decoding.red_flags import flag_red_phrases
-from src.decoding.decoding_prompt import load_user_bio, call_full_prompt
+from src.decoding.decoding_prompt import call_full_prompt
 from src.decoding.decoding_utils import save_decoded_bio
 from src.decoding.copilot import generate_copilot_comment_llm
 
@@ -14,7 +14,7 @@ class DecodingAgent:
     def __init__(self, copilot_mode: bool = False, user_bio: str | None = None, web_mode: bool = False):
         self.copilot_mode = copilot_mode
         self.web_mode = web_mode
-        self.user_bio = load_user_bio(custom_bio=user_bio)
+        self.user_bio = user_bio.strip() if user_bio and user_bio.strip() else ""
 
     # === Main entry ===
     def run(self, bio_dict: dict, username: str) -> dict:
@@ -50,12 +50,7 @@ class DecodingAgent:
         if isinstance(saved_output, str):
             decoded["saved_to"] = saved_output
 
-        if self.web_mode:
-            decoded["commentary"] = generate_copilot_comment_llm(
-                decoded_bio=decoded,
-                user_bio=self.user_bio
-            )
-        else:
+        if not self.web_mode:
             wants_input = input("\n🧠 Want my honest take before you act? (y/n): ").strip().lower()
             if wants_input == "y":
                 reflection = input("What are you feeling about this match? (optional): ").strip()
@@ -90,4 +85,4 @@ class DecodingAgent:
         return choice == "y"
 
     def decode_bio(self, bio_dict: dict) -> dict:
-        return call_full_prompt(bio_dict, user_bio=self.user_bio)
+        return call_full_prompt(bio_dict)

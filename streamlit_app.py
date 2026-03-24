@@ -106,6 +106,3 @@ if st.session_state.ocr_done:
 
             st.subheader("🧠 Decoded Profile")
             st.json(result)
-            if copilot_mode and result.get("commentary"):
-                st.subheader("💬 Bestie Take")
-                st.write(result["commentary"])
