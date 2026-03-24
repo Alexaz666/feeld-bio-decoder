@@ -23,15 +23,27 @@ if "ocr_done" not in st.session_state:
     st.session_state.ocr_done = False
 if "merged_bio" not in st.session_state:
     st.session_state.merged_bio = None
+if "decoded_profile" not in st.session_state:
+    st.session_state.decoded_profile = None
+if "decode_done" not in st.session_state:
+    st.session_state.decode_done = False
 if "flagged_reason" not in st.session_state:
     st.session_state.flagged_reason = None
 if "allow_decode" not in st.session_state:
     st.session_state.allow_decode = True
+if "bestie_user_context" not in st.session_state:
+    st.session_state.bestie_user_context = ""
+if "advisory_result" not in st.session_state:
+    st.session_state.advisory_result = None
 
 if st.session_state.selected_mode != mode:
     st.session_state.selected_mode = mode
     st.session_state.flagged_reason = None
     st.session_state.allow_decode = True
+    st.session_state.decoded_profile = None
+    st.session_state.decode_done = False
+    st.session_state.bestie_user_context = ""
+    st.session_state.advisory_result = None
     st.session_state.pop("override_choice", None)
 
 # === Upload screenshots ===
@@ -40,12 +52,6 @@ uploaded_images = st.file_uploader(
     type=["jpg", "jpeg", "png"],
     accept_multiple_files=True
 )
-
-# === Bestie-only user bio input ===
-user_bio_text = ""
-if copilot_mode:
-    st.markdown("Optional: Paste your own bio (used to assess compatibility).")
-    user_bio_text = st.text_area("Your bio", placeholder="I'm an emotionally available spreadsheet nerd...")
 
 # === Step 1: Run OCR when user uploads ===
 if uploaded_images and st.button("Run OCR"):
@@ -60,6 +66,10 @@ if uploaded_images and st.button("Run OCR"):
         merged = run_ocr_pipeline(file_paths=temp_paths, save_outputs=False)
         st.session_state.merged_bio = merged
         st.session_state.ocr_done = True
+        st.session_state.decoded_profile = None
+        st.session_state.decode_done = False
+        st.session_state.bestie_user_context = ""
+        st.session_state.advisory_result = None
 
 # === Step 2: Worthiness check (Co-Pilot only) ===
 if st.session_state.ocr_done and st.session_state.merged_bio:
@@ -96,13 +106,27 @@ if st.session_state.ocr_done:
             with st.spinner("Decoding profile..."):
                 agent = DecodingAgent(
                     copilot_mode=copilot_mode,
-                    user_bio=user_bio_text,
                     web_mode=True
                 )
                 result = agent.run(
                     bio_dict=st.session_state.merged_bio["uploaded_user"],
                     username="uploaded_user"
                 )
+                st.session_state.decoded_profile = result
+                st.session_state.decode_done = True
+                st.session_state.advisory_result = None
 
-            st.subheader("🧠 Decoded Profile")
-            st.json(result)
+if st.session_state.decode_done and st.session_state.decoded_profile:
+    st.subheader("🧠 Decoded Profile")
+    st.json(st.session_state.decoded_profile)
+
+    if copilot_mode:
+        st.subheader("💬 Bestie Stage 2")
+        st.markdown("Add your own context below before generating any advisory output.")
+        st.text_area(
+            "Your context",
+            key="bestie_user_context",
+            placeholder="Paste your bio or describe your dating intentions, relationship style, communication style, and what you're looking for."
+        )
+        if not st.session_state.bestie_user_context.strip():
+            st.info("Your context will be required before Bestie advice can be generated.")
