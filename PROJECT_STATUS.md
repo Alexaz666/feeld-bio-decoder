@@ -160,7 +160,7 @@ How to manually test before moving on:
 - Confirm Basic mode still never shows Stage 2 UI.
 
 **Step 5**
-Status: in progress. 
+Status: done. 
 Goal: implement the dedicated Bestie advisory generation step using only the already computed decoded profile plus user context.
 
 Files to change:
