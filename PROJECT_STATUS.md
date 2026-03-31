@@ -133,7 +133,7 @@ How to manually test before moving on:
 - Confirm Stage 1 does not require user context yet.
 
 **Step 4**
-
+Status: done.
 Goal: introduce Stage 2 UI for Bestie after Stage 1 decode completes.
 
 Files to change:
@@ -160,7 +160,7 @@ How to manually test before moving on:
 - Confirm Basic mode still never shows Stage 2 UI.
 
 **Step 5**
-
+Status: in progress. 
 Goal: implement the dedicated Bestie advisory generation step using only the already computed decoded profile plus user context.
 
 Files to change:

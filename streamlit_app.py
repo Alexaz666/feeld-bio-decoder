@@ -3,6 +3,7 @@ import os
 import tempfile
 from src.pipeline.ocr_pipeline import run_ocr_pipeline
 from src.decoding.agent import DecodingAgent
+from src.decoding.copilot import generate_bestie_advisory_llm
 from src.decoding.red_flags import flag_red_phrases
 
 st.title("📖 Dating App Bio Decoder")
@@ -35,6 +36,8 @@ if "bestie_user_context" not in st.session_state:
     st.session_state.bestie_user_context = ""
 if "advisory_result" not in st.session_state:
     st.session_state.advisory_result = None
+if "advisory_context_used" not in st.session_state:
+    st.session_state.advisory_context_used = ""
 
 if st.session_state.selected_mode != mode:
     st.session_state.selected_mode = mode
@@ -44,6 +47,7 @@ if st.session_state.selected_mode != mode:
     st.session_state.decode_done = False
     st.session_state.bestie_user_context = ""
     st.session_state.advisory_result = None
+    st.session_state.advisory_context_used = ""
     st.session_state.pop("override_choice", None)
 
 # === Upload screenshots ===
@@ -70,6 +74,7 @@ if uploaded_images and st.button("Run OCR"):
         st.session_state.decode_done = False
         st.session_state.bestie_user_context = ""
         st.session_state.advisory_result = None
+        st.session_state.advisory_context_used = ""
 
 # === Step 2: Worthiness check (Co-Pilot only) ===
 if st.session_state.ocr_done and st.session_state.merged_bio:
@@ -115,6 +120,7 @@ if st.session_state.ocr_done:
                 st.session_state.decoded_profile = result
                 st.session_state.decode_done = True
                 st.session_state.advisory_result = None
+                st.session_state.advisory_context_used = ""
 
 if st.session_state.decode_done and st.session_state.decoded_profile:
     st.subheader("🧠 Decoded Profile")
@@ -128,5 +134,26 @@ if st.session_state.decode_done and st.session_state.decoded_profile:
             key="bestie_user_context",
             placeholder="Paste your bio or describe your dating intentions, relationship style, communication style, and what you're looking for."
         )
+        if st.session_state.bestie_user_context != st.session_state.advisory_context_used:
+            st.session_state.advisory_result = None
         if not st.session_state.bestie_user_context.strip():
             st.info("Your context will be required before Bestie advice can be generated.")
+        else:
+            if st.button("Generate Bestie Advice"):
+                with st.spinner("Generating Bestie advice..."):
+                    st.session_state.advisory_result = generate_bestie_advisory_llm(
+                        decoded_bio=st.session_state.decoded_profile,
+                        user_context=st.session_state.bestie_user_context
+                    )
+                    st.session_state.advisory_context_used = st.session_state.bestie_user_context
+
+        if st.session_state.advisory_result:
+            st.subheader("💡 Bestie Advisory")
+            if "error" in st.session_state.advisory_result:
+                st.error("Could not parse advisory output.")
+                st.text(st.session_state.advisory_result["raw_output"])
+            else:
+                st.markdown(f"**Match Score:** {st.session_state.advisory_result['match_score']}")
+                st.markdown(f"**Match Reasoning:** {st.session_state.advisory_result['match_reasoning']}")
+                st.markdown(f"**Honest Take:** {st.session_state.advisory_result['commentary']}")
+                st.markdown(f"**Next Step Suggestion:** {st.session_state.advisory_result['next_step']}")
